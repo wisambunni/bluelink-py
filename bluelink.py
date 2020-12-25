@@ -3,10 +3,10 @@ import datetime
 import json
 
 class BlueLink():
-    def __init__(self):
+    def __init__(self, credentials):
         self.BASE_URL = 'https://owners.hyundaiusa.com'
         self.DASHBOARD_URL = f'{self.BASE_URL}/us/en/page/dashboard.html'
-        self.CREDENTIALS = json.loads(open('config.json').read())
+        self.CREDENTIALS = credentials
 
         self.identity = dict()
 
@@ -79,6 +79,7 @@ class BlueLink():
 
     def remote_action(self, service_info):
         url = f'{self.BASE_URL}/bin/common/remoteAction'
+        print(service_info['service'])
 
         response = requests.post(url=url, data=service_info)
 
@@ -89,6 +90,7 @@ class BlueLink():
         service_info = {
             'vin': self.CREDENTIALS['vin'],
             'username': self.CREDENTIALS['username'],
+            'pin': self.CREDENTIALS['pin'],
             'token': self.identity['token'],
             'url': self.DASHBOARD_URL,
             'gen': 2,
@@ -103,6 +105,7 @@ class BlueLink():
         service_info = {
             'vin': self.CREDENTIALS['vin'],
             'username': self.CREDENTIALS['username'],
+            'pin': self.CREDENTIALS['pin'],
             'token': self.identity['token'],
             'url': self.DASHBOARD_URL,
             'gen': 2,
