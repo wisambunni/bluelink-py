@@ -79,11 +79,16 @@ class BlueLink():
 
     def remote_action(self, service_info):
         url = f'{self.BASE_URL}/bin/common/remoteAction'
-        print(service_info['service'])
 
         response = requests.post(url=url, data=service_info)
 
-        print(response)
+        response = response.json()
+
+        if response['E_IFRESULT'] != 'Z:Success':
+            print(response)
+            return
+
+        print('Request sent successfully')
 
 
     def lock(self):
@@ -127,15 +132,12 @@ class BlueLink():
                 'gen': 2,
                 'regId': self.identity['regId'],
                 'service': 'ignitionstart',
-                'airCtrl': True,
-                'igniOnDuration': 10,
+                'airCtrl': 'true',
+                'igniOnDuration': '10',
                 'airTempvalue': 'HI',
-                'defrost': False,
-                'heating1': 1,
-                'seatHeaterVentInfo': {
-                    'drvSeatHeatState':'8',
-                    'astSeatHeatState':'8'
-                }
+                'defrost': 'false',
+                'heating1': '2',
+                'seatHeaterVentInfo': json.dumps({'drvSeatHeatState': '8', 'astSeatHeatState': '8'})
             },
             'winter2': {
                 'vin': self.CREDENTIALS['vin'],
@@ -146,15 +148,12 @@ class BlueLink():
                 'gen': 2,
                 'regId': self.identity['regId'],
                 'service': 'ignitionstart',
-                'airCtrl': True,
-                'igniOnDuration': 10,
+                'airCtrl': 'true',
+                'igniOnDuration': '10',
                 'airTempvalue': 'HI',
-                'defrost': True,
-                'heating1': 1,
-                'seatHeaterVentInfo': {
-                    'drvSeatHeatState':'8',
-                    'astSeatHeatState':'8'
-                }
+                'defrost': 'true',
+                'heating1': '2',
+                'seatHeaterVentInfo': json.dumps({'drvSeatHeatState': '8', 'astSeatHeatState': '8'})
             },
             'summer': {
                 'vin': self.CREDENTIALS['vin'],
@@ -165,15 +164,12 @@ class BlueLink():
                 'gen': 2,
                 'regId': self.identity['regId'],
                 'service': 'ignitionstart',
-                'airCtrl': True,
-                'igniOnDuration': 10,
+                'airCtrl': 'true',
+                'igniOnDuration': '10',
                 'airTempvalue': 'LO',
-                'defrost': False,
-                'heating1': 0,
-                'seatHeaterVentInfo': {
-                    'drvSeatHeatState':'4',
-                    'astSeatHeatState':'4'
-                }
+                'defrost': 'false',
+                'heating1': '0',
+                'seatHeaterVentInfo': json.dumps({'drvSeatHeatState': '4', 'astSeatHeatState': '4'})
             }
         }
 
