@@ -17,6 +17,12 @@ def main():
         blue_link.lock()
     elif action == 'unlock':
         blue_link.unlock()
+    elif action == 'start-winter':
+        blue_link.start('winter')
+    elif action == 'start-winter2':
+        blue_link.start('winter2')
+    elif action == 'start-summer':
+        blue_link.start('summer')
 
 
 if __name__ == "__main__":

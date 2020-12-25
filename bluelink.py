@@ -114,3 +114,67 @@ class BlueLink():
         }
 
         return self.remote_action(service_info)
+    
+
+    def start(self, preset):
+        service_info = {
+            'winter': {
+                'vin': self.CREDENTIALS['vin'],
+                'username': self.CREDENTIALS['username'],
+                'pin': self.CREDENTIALS['pin'],
+                'token': self.identity['token'],
+                'url': self.DASHBOARD_URL,
+                'gen': 2,
+                'regId': self.identity['regId'],
+                'service': 'ignitionstart',
+                'airCtrl': True,
+                'igniOnDuration': 10,
+                'airTempvalue': 'HI',
+                'defrost': False,
+                'heating1': 1,
+                'seatHeaterVentInfo': {
+                    'drvSeatHeatState':'8',
+                    'astSeatHeatState':'8'
+                }
+            },
+            'winter2': {
+                'vin': self.CREDENTIALS['vin'],
+                'username': self.CREDENTIALS['username'],
+                'pin': self.CREDENTIALS['pin'],
+                'token': self.identity['token'],
+                'url': self.DASHBOARD_URL,
+                'gen': 2,
+                'regId': self.identity['regId'],
+                'service': 'ignitionstart',
+                'airCtrl': True,
+                'igniOnDuration': 10,
+                'airTempvalue': 'HI',
+                'defrost': True,
+                'heating1': 1,
+                'seatHeaterVentInfo': {
+                    'drvSeatHeatState':'8',
+                    'astSeatHeatState':'8'
+                }
+            },
+            'summer': {
+                'vin': self.CREDENTIALS['vin'],
+                'username': self.CREDENTIALS['username'],
+                'pin': self.CREDENTIALS['pin'],
+                'token': self.identity['token'],
+                'url': self.DASHBOARD_URL,
+                'gen': 2,
+                'regId': self.identity['regId'],
+                'service': 'ignitionstart',
+                'airCtrl': True,
+                'igniOnDuration': 10,
+                'airTempvalue': 'LO',
+                'defrost': False,
+                'heating1': 0,
+                'seatHeaterVentInfo': {
+                    'drvSeatHeatState':'4',
+                    'astSeatHeatState':'4'
+                }
+            }
+        }
+
+        return self.remote_action(service_info[preset])
