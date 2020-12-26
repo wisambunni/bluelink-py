@@ -174,3 +174,18 @@ class BlueLink():
         }
 
         return self.remote_action(service_info[preset])
+    
+
+    def stop(self):
+        service_info = {
+            'vin': self.CREDENTIALS['vin'],
+            'username': self.CREDENTIALS['username'],
+            'pin': self.CREDENTIALS['pin'],
+            'token': self.identity['token'],
+            'url': self.DASHBOARD_URL,
+            'gen': 2,
+            'regId': self.identity['regId'],
+            'service': 'ignitionstop'
+        }
+
+        return self.remote_action(service_info)

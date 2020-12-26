@@ -23,6 +23,8 @@ def main():
         blue_link.start('winter2')
     elif action == 'start-summer':
         blue_link.start('summer')
+    elif action == 'stop':
+        blue_link.stop()
 
 
 if __name__ == "__main__":
