@@ -25,6 +25,8 @@ def main():
         blue_link.start('summer')
     elif action == 'stop':
         blue_link.stop()
+    elif action == 'find':
+        blue_link.find()
 
 
 if __name__ == "__main__":

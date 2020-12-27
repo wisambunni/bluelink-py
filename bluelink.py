@@ -78,6 +78,9 @@ class BlueLink():
 
 
     def remote_action(self, service_info):
+
+        print(service_info['service'])
+
         url = f'{self.BASE_URL}/bin/common/remoteAction'
 
         response = requests.post(url=url, data=service_info)
@@ -186,6 +189,21 @@ class BlueLink():
             'gen': 2,
             'regId': self.identity['regId'],
             'service': 'ignitionstop'
+        }
+
+        return self.remote_action(service_info)
+    
+
+    def find(self):
+        service_info = {
+            'vin': self.CREDENTIALS['vin'],
+            'username': self.CREDENTIALS['username'],
+            'pin': self.CREDENTIALS['pin'],
+            'token': self.identity['token'],
+            'url': self.DASHBOARD_URL,
+            'gen': 2,
+            'regId': self.identity['regId'],
+            'service': 'getFindMyCar'
         }
 
         return self.remote_action(service_info)
