@@ -1,6 +1,7 @@
 import requests
 import datetime
 import json
+from math import floor
 
 class BlueLink():
     def __init__(self, credentials):
@@ -78,20 +79,11 @@ class BlueLink():
 
 
     def remote_action(self, service_info):
-
         print(service_info['service'])
-
         url = f'{self.BASE_URL}/bin/common/remoteAction'
+        response = requests.post(url=url, data=service_info).json()
 
-        response = requests.post(url=url, data=service_info)
-
-        response = response.json()
-
-        if response['E_IFRESULT'] != 'Z:Success':
-            print(response)
-            return
-
-        print('Request sent successfully')
+        return response
 
 
     def lock(self):
@@ -106,7 +98,12 @@ class BlueLink():
             'service': 'remotelock'
         }
 
-        return self.remote_action(service_info)
+        response = self.remote_action(service_info)
+
+        if response['E_IFRESULT'] == 'Z:Failure':
+            raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
+        else:
+            print(response['E_IFRESULT'])
 
 
     def unlock(self):
@@ -121,7 +118,12 @@ class BlueLink():
             'service': 'remoteunlock'
         }
 
-        return self.remote_action(service_info)
+        response = self.remote_action(service_info)
+
+        if response['E_IFRESULT'] == 'Z:Failure':
+            raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
+        else:
+            print(response['E_IFRESULT'])
     
 
     def start(self, preset):
@@ -139,7 +141,7 @@ class BlueLink():
                 'igniOnDuration': '10',
                 'airTempvalue': 'HI',
                 'defrost': 'false',
-                'heating1': '2',
+                'heating1': '1',
                 'seatHeaterVentInfo': json.dumps({'drvSeatHeatState': '8', 'astSeatHeatState': '8'})
             },
             'winter2': {
@@ -155,7 +157,7 @@ class BlueLink():
                 'igniOnDuration': '10',
                 'airTempvalue': 'HI',
                 'defrost': 'true',
-                'heating1': '2',
+                'heating1': '1',
                 'seatHeaterVentInfo': json.dumps({'drvSeatHeatState': '8', 'astSeatHeatState': '8'})
             },
             'summer': {
@@ -176,7 +178,12 @@ class BlueLink():
             }
         }
 
-        return self.remote_action(service_info[preset])
+        response = self.remote_action(service_info)
+
+        if response['E_IFRESULT'] == 'Z:Failure':
+            raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
+        else:
+            print(response['E_IFRESULT'])
     
 
     def stop(self):
@@ -191,7 +198,12 @@ class BlueLink():
             'service': 'ignitionstop'
         }
 
-        return self.remote_action(service_info)
+        response = self.remote_action(service_info)
+
+        if response['E_IFRESULT'] == 'Z:Failure':
+            raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
+        else:
+            print(response['E_IFRESULT'])
     
 
     def find(self):
@@ -206,4 +218,17 @@ class BlueLink():
             'service': 'getFindMyCar'
         }
 
-        return self.remote_action(service_info)
+        response = self.remote_action(service_info)
+
+        if response['E_IFRESULT'] == 'Z:Failure':
+            raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
+        else:
+            print(response['E_IFRESULT'])
+            if response['E_IFRESULT'] == 'Z:Success':
+                truncate = lambda n, decimal: int(n*(10**decimal))/(10**decimal)
+                lat = response['RESPONSE_STRING']['coord']['lat']
+                lat = truncate(lat, 3)
+                lon = response['RESPONSE_STRING']['coord']['lon']
+                lon = truncate(lon, 3)
+                return lat, lon
+            return -1, -1
