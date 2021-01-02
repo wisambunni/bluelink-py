@@ -4,6 +4,22 @@ import json
 from math import floor
 
 class BlueLink():
+    """
+    Blue Link wrapper class.
+
+    Communicates with BlueLink website and sends HTTP requests.
+    This is similar to what happens when you control your vehicle using the internet browser.
+
+    :param crednetials: Containing your user credentials. the format is as follows:
+    {
+        'username': '<your_email>',
+        'password': '<your_hyundaiusa_password>',
+        'pin': '<your_hyundai_pin>',
+        'vin': '<your_vehicle_vin>'
+    }
+    :type credentials: dict
+    """
+
     def __init__(self, credentials):
         self.BASE_URL = 'https://owners.hyundaiusa.com'
         self.DASHBOARD_URL = f'{self.BASE_URL}/us/en/page/dashboard.html'
@@ -66,9 +82,10 @@ class BlueLink():
         
         reg_id = response['RESPONSE_STRING']['OwnersVehiclesInfo'][0]['RegistrationID']
 
+        self.CREDENTIALS['password'] = ''
+
         self.identity = {
             'username': self.CREDENTIALS['username'],
-            'password': self.CREDENTIALS['password'],
             'pin': self.CREDENTIALS['pin'],
             'vin': self.CREDENTIALS['vin'],
             'token': access_token,
