@@ -1,7 +1,7 @@
-import requests
+from math import floor
 import datetime
 import json
-from math import floor
+import requests
 
 class BlueLink():
     """
@@ -17,6 +17,7 @@ class BlueLink():
         'pin': '<your_hyundai_pin>',
         'vin': '<your_vehicle_vin>'
     }
+    NOTE: The user is responsible for securely using and saving the credentials.
     :type credentials: dict
     """
 
@@ -25,10 +26,16 @@ class BlueLink():
         self.DASHBOARD_URL = f'{self.BASE_URL}/us/en/page/dashboard.html'
         self.CREDENTIALS = credentials
 
-        self.identity = dict()
+        self.__identity = dict()
 
 
-    def create_token(self):
+    def __create_token(self):
+        """
+        Creates a new token.
+
+        :return: Response in JSON format.
+        :rtype: dict
+        """
         token_url = f'{self.BASE_URL}/etc/designs/ownercommon/us/token.json'
         old_time = datetime.datetime(1970,1,1,0,0,0,0)
         new_time = datetime.datetime.now()
@@ -37,8 +44,17 @@ class BlueLink():
         response = requests.get(url=f'{token_url}?reg={delta_time}')
         return response.json()
 
-    
-    def validate_token(self, token):
+
+    def __validate_token(self, token):
+        """
+        Validates HTTP requests using the token created in the object.
+
+        :param token: Access token.
+        :type token: str
+
+        :return: Whether the token is valid or not.
+        :rtype: bool
+        """
         auth_url = f'{self.BASE_URL}/libs/granite/csrf/token.json'
         response = requests.get(url=auth_url, headers={'csrf_token': token})
 
@@ -46,10 +62,16 @@ class BlueLink():
 
 
     def login(self):
+        """
+        Creates a token, verifies it, and logs in to the Hyundai website.
+        If successful, it will create an identity for further requests.
 
-        token = self.create_token()
+        :return: Identity for other API requests.
+        :rtype: dict
+        """
+        token = self.__create_token()
 
-        if not self.validate_token(token['token']):
+        if not self.__validate_token(token['token']):
             print('ERR: Could not validate token')
         else:
             print('Token validated')
@@ -79,12 +101,12 @@ class BlueLink():
 
         if response['E_IFRESULT'] != 'Z:Success':
             return
-        
+
         reg_id = response['RESPONSE_STRING']['OwnersVehiclesInfo'][0]['RegistrationID']
 
         self.CREDENTIALS['password'] = ''
 
-        self.identity = {
+        self.__identity = {
             'username': self.CREDENTIALS['username'],
             'pin': self.CREDENTIALS['pin'],
             'vin': self.CREDENTIALS['vin'],
@@ -92,10 +114,19 @@ class BlueLink():
             'regId': reg_id
         }
 
-        return self.identity
+        return self.__identity
 
 
     def remote_action(self, service_info):
+        """
+        Communicates with the gateway to submit remote actions.
+
+        :param service_info: The type of service requested for remote action.
+        :type service_info: dict
+
+        :return: Response in JSON format.
+        :rtype: dict
+        """
         print(service_info['service'])
         url = f'{self.BASE_URL}/bin/common/remoteAction'
         response = requests.post(url=url, data=service_info).json()
@@ -104,14 +135,19 @@ class BlueLink():
 
 
     def lock(self):
+        """
+        Locks vehicle.
+
+        :raise ConnectionError: Thrown if the remote action results in failure.
+        """
         service_info = {
             'vin': self.CREDENTIALS['vin'],
             'username': self.CREDENTIALS['username'],
             'pin': self.CREDENTIALS['pin'],
-            'token': self.identity['token'],
+            'token': self.__identity['token'],
             'url': self.DASHBOARD_URL,
             'gen': 2,
-            'regId': self.identity['regId'],
+            'regId': self.__identity['regId'],
             'service': 'remotelock'
         }
 
@@ -124,14 +160,19 @@ class BlueLink():
 
 
     def unlock(self):
+        """
+        Unlocks vehicle.
+
+        :raise ConnectionError: Thrown if the remote action results in failure.
+        """
         service_info = {
             'vin': self.CREDENTIALS['vin'],
             'username': self.CREDENTIALS['username'],
             'pin': self.CREDENTIALS['pin'],
-            'token': self.identity['token'],
+            'token': self.__identity['token'],
             'url': self.DASHBOARD_URL,
             'gen': 2,
-            'regId': self.identity['regId'],
+            'regId': self.__identity['regId'],
             'service': 'remoteunlock'
         }
 
@@ -141,18 +182,30 @@ class BlueLink():
             raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
         else:
             print(response['E_IFRESULT'])
-    
+
 
     def start(self, preset):
+        """
+        Starts vehicle using different presets.
+
+        :param preset: The type of features to include in remote start.
+                       Currently, there are three presets to choose from:
+                       winter: HI temp, heated seats, and heated steering.
+                       winter2: Everything in winter plus defrosters.
+                       summer: LO temp and cooled seats.
+        :type preset: str
+
+        :raise ConnectionError: Thrown if the remote action results in failure.
+        """
         service_info = {
             'winter': {
                 'vin': self.CREDENTIALS['vin'],
                 'username': self.CREDENTIALS['username'],
                 'pin': self.CREDENTIALS['pin'],
-                'token': self.identity['token'],
+                'token': self.__identity['token'],
                 'url': self.DASHBOARD_URL,
                 'gen': 2,
-                'regId': self.identity['regId'],
+                'regId': self.__identity['regId'],
                 'service': 'ignitionstart',
                 'airCtrl': 'true',
                 'igniOnDuration': '10',
@@ -165,10 +218,10 @@ class BlueLink():
                 'vin': self.CREDENTIALS['vin'],
                 'username': self.CREDENTIALS['username'],
                 'pin': self.CREDENTIALS['pin'],
-                'token': self.identity['token'],
+                'token': self.__identity['token'],
                 'url': self.DASHBOARD_URL,
                 'gen': 2,
-                'regId': self.identity['regId'],
+                'regId': self.__identity['regId'],
                 'service': 'ignitionstart',
                 'airCtrl': 'true',
                 'igniOnDuration': '10',
@@ -181,10 +234,10 @@ class BlueLink():
                 'vin': self.CREDENTIALS['vin'],
                 'username': self.CREDENTIALS['username'],
                 'pin': self.CREDENTIALS['pin'],
-                'token': self.identity['token'],
+                'token': self.__identity['token'],
                 'url': self.DASHBOARD_URL,
                 'gen': 2,
-                'regId': self.identity['regId'],
+                'regId': self.__identity['regId'],
                 'service': 'ignitionstart',
                 'airCtrl': 'true',
                 'igniOnDuration': '10',
@@ -201,17 +254,22 @@ class BlueLink():
             raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
         else:
             print(response['E_IFRESULT'])
-    
+
 
     def stop(self):
+        """
+        Turns vehicle off.
+
+        :raise ConnectionError: Thrown if the remote action results in failure.
+        """
         service_info = {
             'vin': self.CREDENTIALS['vin'],
             'username': self.CREDENTIALS['username'],
             'pin': self.CREDENTIALS['pin'],
-            'token': self.identity['token'],
+            'token': self.__identity['token'],
             'url': self.DASHBOARD_URL,
             'gen': 2,
-            'regId': self.identity['regId'],
+            'regId': self.__identity['regId'],
             'service': 'ignitionstop'
         }
 
@@ -221,17 +279,25 @@ class BlueLink():
             raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
         else:
             print(response['E_IFRESULT'])
-    
+
 
     def find(self):
+        """
+        Locates vehicle using GPS.
+
+        :return: Latitude and Longitude coordinates, truncated to 3 decimals.
+        :rtype: tuple(float, float)
+
+        :raise ConnectionError: Thrown if the remote action results in failure.
+        """
         service_info = {
             'vin': self.CREDENTIALS['vin'],
             'username': self.CREDENTIALS['username'],
             'pin': self.CREDENTIALS['pin'],
-            'token': self.identity['token'],
+            'token': self.__identity['token'],
             'url': self.DASHBOARD_URL,
             'gen': 2,
-            'regId': self.identity['regId'],
+            'regId': self.__identity['regId'],
             'service': 'getFindMyCar'
         }
 

@@ -10,7 +10,7 @@ def main():
 
     credentials = json.loads(open('config.json').read())
     blue_link = BlueLink(credentials)
-    identity = blue_link.login()
+    blue_link.login()
 
     action = sys.argv[1]
     if action == 'lock':
@@ -26,7 +26,8 @@ def main():
     elif action == 'stop':
         blue_link.stop()
     elif action == 'find':
-        blue_link.find()
+        lat, lon = blue_link.find()
+        print(lat, lon)
 
 
 if __name__ == "__main__":
