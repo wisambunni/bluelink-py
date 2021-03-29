@@ -71,7 +71,7 @@ class BlueLink():
         """
         token = self.__create_token()
 
-        if not self.__validate_token(token['token']):
+        if not self.__validate_token(token['jwt_token']):
             print('ERR: Could not validate token')
         else:
             print('Token validated')
@@ -88,7 +88,7 @@ class BlueLink():
         if response['E_IFRESULT'] != 'Z:Success':
             return
 
-        access_token = response['Token']['access_token']
+        access_token = response['RESPONSE_STRING']['jwt_id']
 
         url = f'{self.BASE_URL}/bin/common/MyAccountServlet'
 
@@ -248,7 +248,7 @@ class BlueLink():
             }
         }
 
-        response = self.remote_action(service_info)
+        response = self.remote_action(service_info[preset])
 
         if response['E_IFRESULT'] == 'Z:Failure':
             raise ConnectionError(response['RESPONSE_STRING']['errorMessage'])
