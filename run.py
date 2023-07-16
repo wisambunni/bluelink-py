@@ -1,34 +1,34 @@
 from bluelink import BlueLink
+import argparse
 import json
-import sys
 
 
 def main():
-    if len(sys.argv) < 2:
-        print('ERR: Must provide remote action')
-        exit()
-
     credentials = json.loads(open('config.json').read())
-    blue_link = BlueLink(credentials)
+
+    blue_link = BlueLink(credentials=credentials)
+    blue_link_actions = {
+        'start': blue_link.start,
+        'stop': blue_link.stop,
+        'lock': blue_link.lock,
+        'unlock': blue_link.unlock,
+    }
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--action', type=str, required=True,
+                        choices=blue_link_actions.keys())
+    parser.add_argument('--temp', type=int, required=False, default=70)
+    parser.add_argument('--defrost', type=bool, required=False, default=False)
+    args = parser.parse_args()
+
     blue_link.login()
 
-    action = sys.argv[1]
-    if action == 'lock':
-        blue_link.lock()
-    elif action == 'unlock':
-        blue_link.unlock()
-    elif action == 'start-winter':
-        blue_link.start('winter')
-    elif action == 'start-winter2':
-        blue_link.start('winter2')
-    elif action == 'start-summer':
-        blue_link.start('summer')
-    elif action == 'stop':
-        blue_link.stop()
-    elif action == 'find':
-        lat, lon = blue_link.find()
-        print(lat, lon)
+    if args.action == 'start':
+        blue_link_actions[args.action](args.temp, args.defrost)
+    else:
+        blue_link_actions[args.action]()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
