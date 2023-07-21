@@ -112,22 +112,23 @@ class BlueLink():
         Logs in to BlueLink, creates a session, and retrieves vehicle configs.
 
         :param credentials: User credentials (similar to class param)
-        :type credentals: dict
+        :type credentials: dict
         """
         url = f'{self.BASE_URL}/v2/ac/oauth/token'
         credentials = self.__credentials if not credentials else credentials
         headers = {
             'User-Agent': 'PostmanRuntime/7.26.10',
             'client_id': credentials[Credentials.CLIENT_ID],
-            'client_secret': credentials[Credentials.CLIENT_SECRET]
+            'client_secret': credentials[Credentials.CLIENT_SECRET],
         }
         body = {
             'username': credentials[Credentials.USERNAME],
             'password': credentials[Credentials.PASSWORD],
         }
+
         logging.info('Logging in to BlueLink')
 
-        response = requests.post(url=url, headers=headers, data=body)
+        response = requests.post(url=url, headers=headers, json=body)
 
         if response.status_code != 200:
             logging.error('Failed to log in to BlueLink')
@@ -257,8 +258,6 @@ class BlueLink():
         :return: response status code
         :rtype: int
         """
-        print(outdoor_temp)
-        print(defrost)
         url = f'{self.BASE_URL}/ac/v2/rcs/rsc/start'
         headers = self.__get_default_headers()
 
